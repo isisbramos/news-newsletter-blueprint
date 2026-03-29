@@ -39,6 +39,23 @@
   "author_name": "Author",
 
   "_copy_without_render": [
-    "templates/email.html"
+    "templates/email.html",
+    "feedback.html",
+    "pre_filter.py",
+    "delivery.py",
+    "schemas.py",
+    "exceptions.py",
+    "audit_agent.py",
+    "test_dry_run.py",
+    "social/__init__.py",
+    "social/content_adapter.py",
+    "social/linkedin.py",
+    "sources/__init__.py",
+    "sources/base.py",
+    "sources/hackernews.py",
+    "sources/lobsters.py",
+    "sources/reddit.py",
+    "sources/rss_generic.py",
+    "sources/techcrunch.py"
   ]
 }
