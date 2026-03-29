@@ -1,0 +1,92 @@
+Selecione e escreva os achados {{ 'do dia' if cookiecutter.curation_style == 'daily-digest' else 'da semana' if 'weekly' in cookiecutter.curation_style else 'em profundidade' }} a partir dos posts abaixo.
+
+{context_block}
+
+═══ PIPELINE DE SELEÇÃO (execute na ordem) ═══
+
+STEP 1 — TOPIC GATE (obrigatório):
+{{ cookiecutter.topic_gate_description }}
+→ SIM: continua pro Step 2.
+→ NÃO: só entra se for evento de magnitude excepcional (aquisição >$1B, regulação governamental, shutdown de plataforma major). Caso contrário, DESCARTE.
+
+STEP 1.5 — SOURCE BIAS CHECK (para blogs oficiais de QUALQUER empresa):
+Se a fonte original é um blog corporativo oficial:
+→ O post anuncia algo que usuários podem usar/testar agora? → Tratar normalmente.
+→ O post é marketing/thought-leadership/branding sem novidade concreta? → DESCARTE.
+→ A informação já foi coberta por outra fonte na lista? → Preferir a cobertura independente.
+
+STEP 2 — CRITÉRIOS (precisa de pelo menos 2 de 3):
+1. Acionável — o leitor pode fazer algo concreto: testar ferramenta, mudar processo, tomar decisão
+2. Sinal de mercado — revela movimento estratégico: player entrando/saindo de categoria, shift de política, nova aliança/aquisição
+3. Afeta workflows — muda como {{ cookiecutter.newsletter_audience }} trabalham ou tomam decisões no dia a dia
+
+STEP 3 — ANTI-SIGNAL:
+Aplique estes filtros adicionais. Exemplos de anti-signal para {{ cookiecutter.newsletter_topic }}:
+→ {{ cookiecutter.anti_signal_examples }}
+→ Rehashed news: se o título reporta evento que você sabe que já aconteceu dias ou semanas atrás, DESCARTE — exceto se traz informação NOVA (dados, reação, consequência concreta).
+Se um post não se enquadra nesses exemplos mas claramente foge do escopo {{ cookiecutter.newsletter_topic }}, DESCARTE. Use o princípio, não apenas a lista.
+
+STEP 4 — RANKING:
+{% if cookiecutter.curation_style == 'daily-digest' -%}
+→ main_find = item mais acionável OU com maior sinal de mercado. Tração (score) é tiebreaker, NUNCA critério principal.
+→ main_find DEVE ser sobre UM evento específico. Se um post é roundup/compilação, NÃO use como main_find.
+→ quick_finds = 3-5 itens restantes que passaram nos steps anteriores.
+{% elif cookiecutter.curation_style == 'weekly-roundup' -%}
+→ Selecione os 5 melhores itens da semana. Não há hierarquia main/quick — são 5 achados equivalentes.
+→ Priorize itens com impacto duradouro (que ainda serão relevantes na próxima semana).
+{% elif cookiecutter.curation_style == 'deep-dive' -%}
+→ main_find = o tema mais rico e com mais facetas para explorar.
+→ quick_finds = 2-3 itens diretamente relacionados ao tema do main_find que aprofundam a análise.
+→ Prefira coerência temática a diversidade: todos os achados devem iluminar o mesmo ângulo.
+{% endif -%}
+→ Diversidade de fontes: prefira representação variada de sources.
+→ Diversidade de PERSPECTIVA: evite que todos os achados sejam do mesmo tipo (ex: todos product launches).
+→ Items com campo "also_trending_on" indicam que o tema apareceu em múltiplas fontes independentes — trate como sinal de relevância.
+
+STEP 4.5 — RADAR (early signals):
+→ Após selecionar os achados principais, olhe para os itens restantes que passaram no TOPIC GATE mas ficaram de fora.
+→ Selecione 1-2 itens que são "cedo demais pra ser achado" mas vale acompanhar.
+→ Tom: "vale acompanhar", "ainda cedo, mas...", "pode virar story nos próximos dias".
+→ Se nenhum item justifica radar, deixe a lista vazia. NÃO force itens fracos aqui.
+
+STEP 5 — TESTE FINAL:
+Para cada item selecionado, complete UMA das frases abaixo no campo step5_phrase. Se não conseguir completar com informação do título, DESCARTE o item:
+→ "Agora é possível [ação concreta]" — para features e ferramentas
+→ "[Player] está [movendo pra / investindo em / saindo de] [categoria]" — para M&A e estratégia
+→ "[Resultado/dado] muda o que sabíamos sobre [área]" — para research e benchmarks
+→ "[Autoridade] decidiu [ação] sobre [tema]" — para regulação e policy
+
+═══ EXEMPLOS DE CALIBRAÇÃO ═══
+
+Adicione aqui exemplos reais do seu tema pra calibrar o modelo.
+Use o formato abaixo. Quanto mais exemplos relevantes, melhor a qualidade da curadoria.
+
+Exemplo 1 — SELEÇÃO CORRETA:
+Input: { "title": "[título de post sobre {{ cookiecutter.newsletter_topic }}]", "source": "Fonte", "score": 100 }
+→ TOPIC GATE: SIM
+→ Critérios: [quais dois critérios do STEP 2 ele atende]
+→ step5_phrase: "[frase do step 5 completada]"
+→ SELECIONADO como main_find
+Output CORRETO: "Segundo [Fonte], [explicação factual sem hype do que aconteceu e por que importa pra {{ cookiecutter.newsletter_audience }}]"
+
+Exemplo 2 — DESCARTE CORRETO:
+Input: { "title": "[título de post fora do tema]", "source": "Fonte", "score": 500 }
+→ TOPIC GATE: NÃO ([motivo específico])
+→ Magnitude excepcional? NÃO
+→ DESCARTADO — alta tração não salva post fora do escopo {{ cookiecutter.newsletter_topic }}
+
+[Adicione mais exemplos aqui conforme for rodando a newsletter e encontrando edge cases]
+
+═══ REGRAS DE FORMATO ═══
+- reasoning: preencha ANTES de escrever os achados. Liste quais títulos passaram/falharam no TOPIC GATE.
+- correspondent_intro: 1-2 frases em primeira pessoa. A PRIMEIRA frase deve referenciar o achado do dia pelo tema. A segunda pode citar volume (X posts de Y fontes).
+- main_find.title: factual, max 15 palavras. Reformule se o original for sensacionalista.
+- main_find.body: 3-5 frases. SEMPRE comece com atribuição ("Segundo [fonte]", "De acordo com [fonte]"). Depois, explique o que é e por que importa pro leitor.
+- main_find.bullets: 2-3 pontos: o que aconteceu, o que significa pra quem lê, o que observar a seguir.
+- quick_finds[].signal: 1-2 frases curtas explicando o que aconteceu e por que é relevante.
+- radar[].why_watch: 1 frase com tom de "cedo demais pra conclusão, mas vale ficar de olho".
+- Termos técnicos: explique brevemente — entre parênteses após o termo.
+
+LEMBRETE FINAL: Você PODE explicar o que algo é (contexto factual) e por que importa. Você NÃO PODE inventar reações, consequências ou qualificar intensidade. Na dúvida: descreva, não qualifique.
+
+POSTS COLETADOS:

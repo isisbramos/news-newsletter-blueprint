@@ -1,0 +1,44 @@
+{
+  "_comment": "News Newsletter Blueprint — Cookiecutter Template Config. Cada campo vira uma variável no projeto gerado.",
+
+  "project_name": "My Newsletter",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-').replace('_', '-') }}",
+
+  "_section_correspondent": "──── PERSONA ────",
+  "correspondent_name": "AYA",
+  "correspondent_role": "analista de campo",
+  "correspondent_tagline": "curadoria com contexto, sem hype",
+
+  "_section_content": "──── CONTEÚDO ────",
+  "newsletter_topic": "tech & AI",
+  "newsletter_topic_short": "AI",
+  "newsletter_audience": "profissionais curiosos que querem entender como AI está mudando tecnologia, negócios e trabalho",
+  "newsletter_language": ["pt-BR", "en-US"],
+
+  "_section_curation": "──── CURADORIA ────",
+  "curation_style": ["daily-digest", "weekly-roundup", "deep-dive"],
+  "topic_gate_description": "O post tem conexão direta com tech & AI, modelos de linguagem, automação inteligente, ou decisões estratégicas de empresas de tech?",
+  "anti_signal_examples": "preço de serviços consumer (streaming, games), mercado financeiro sem ângulo tech, hardware reviews sem ângulo AI, celebrity takes sem relevância setorial",
+  "reddit_subreddits": "artificial, MachineLearning, technology, programming, startups",
+
+  "_section_delivery": "──── ENTREGA ────",
+  "delivery_platform": ["buttondown", "none"],
+  "schedule_frequency": ["daily", "weekly-monday", "weekly-friday"],
+  "schedule_time_utc": "10:00",
+  "launch_date": "2026-01-01",
+
+  "_section_llm": "──── LLM ────",
+  "llm_provider": ["gemini", "openai"],
+  "llm_model": "gemini-2.5-flash",
+
+  "_section_social": "──── SOCIAL ────",
+  "social_linkedin": ["no", "yes"],
+
+  "_section_meta": "──── META ────",
+  "github_username": "your-username",
+  "author_name": "Author",
+
+  "_copy_without_render": [
+    "templates/email.html"
+  ]
+}

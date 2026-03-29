@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Output (generated at runtime)
+output/
+
+# Debug artifacts para o audit agent (PE study — não vai pro repo)
+debug/
+
+# OS
+.DS_Store

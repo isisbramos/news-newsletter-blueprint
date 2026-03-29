@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AYA's Daily Scout — Feedback</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background-color:#0F172A;color:#CBD5E1;font-family:'Courier New',Courier,monospace;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:24px}
+    .container{max-width:480px;width:100%;text-align:center}
+    .bar{color:#22C55E;font-size:11px;letter-spacing:1px}
+    .title{color:#22C55E;font-size:18px;font-weight:bold;margin-top:12px}
+    .subtitle{color:#94A3B8;font-size:12px;margin-top:4px}
+    .state{display:none}.state.active{display:block}
+    .emoji-big{font-size:48px;margin:24px 0 12px}
+    .msg-primary{color:#22C55E;font-size:16px;font-weight:bold}
+    .msg-secondary{color:#94A3B8;font-size:13px;line-height:1.6;margin-top:12px}
+    .edition-tag{display:inline-block;color:#818CF8;font-size:11px;border:1px solid #334155;padding:4px 10px;margin-top:16px;letter-spacing:0.5px}
+    .close-hint{color:#475569;font-size:11px;margin-top:24px}
+    .msg-error{color:#F59E0B;font-size:14px;margin-top:12px}
+    .tracking-status{color:#334155;font-size:10px;margin-top:32px;transition:color 0.3s}
+    .tracking-status.ok{color:#22C55E}.tracking-status.fail{color:#F59E0B}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="bar">========================================</div>
+    <div class="title">DAILY SCOUT</div>
+    <div class="subtitle">feedback terminal</div>
+    <div class="bar" style="margin-top:8px">========================================</div>
+    <div id="state-success" class="state">
+      <div class="emoji-big" id="rating-emoji"></div>
+      <div class="msg-primary">Feedback recebido!</div>
+      <div class="msg-secondary">AYA agradece o signal.<br>Isso ajuda a calibrar a curadoria de amanhã.</div>
+      <div class="edition-tag" id="edition-tag"></div>
+      <div class="close-hint">Pode fechar essa aba.</div>
+      <div class="tracking-status" id="tracking-status">syncing...</div>
+    </div>
+    <div id="state-error" class="state">
+      <div class="emoji-big">🛸</div>
+      <div class="msg-error">Link inválido ou expirado.</div>
+      <div class="msg-secondary">Parece que algo deu errado com esse link de feedback.<br>Tenta clicar de novo direto do email.</div>
+    </div>
+  </div>
+  <script>
+    const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbyw2XEtRTCHNHw6ivJ8Bp763LxRua_rtXW9D56DrO3qDxuiHsaGjGK2hxTqRtn4zRLy/exec";
+    const RATING_MAP={fire:{emoji:"🔥",label:"Loved it"},solid:{emoji:"👍",label:"Solid"},meh:{emoji:"😐",label:"Meh"}};
+    const params=new URLSearchParams(window.location.search);
+    const edition=params.get("edition"),rating=params.get("rating");
+    if(edition&&rating&&RATING_MAP[rating]){
+      document.getElementById("state-success").classList.add("active");
+      document.getElementById("rating-emoji").textContent=RATING_MAP[rating].emoji;
+      document.getElementById("edition-tag").textContent="edition #"+edition+" · "+RATING_MAP[rating].label;
+      (async()=>{const s=document.getElementById("tracking-status");try{const r=await fetch(APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({edition,rating,referrer:document.referrer||"email"})});if(r.ok){s.textContent="signal: synced ✓";s.classList.add("ok")}else throw new Error()}catch{try{new Image().src=APPS_SCRIPT_URL+"?edition="+edition+"&rating="+rating+"&referrer=email-fallback";s.textContent="signal: synced (fallback) ✓";s.classList.add("ok")}catch{s.textContent="signal: offline";s.classList.add("fail")}}})();
+    }else{document.getElementById("state-error").classList.add("active")}
+  </script>
+</body>
+</html>

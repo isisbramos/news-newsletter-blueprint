@@ -1,0 +1,79 @@
+name: {{ cookiecutter.project_name }} Pipeline
+
+on:
+  schedule:
+    # {{ cookiecutter.schedule_frequency }} at {{ cookiecutter.schedule_time_utc }} UTC
+    - cron: '{{ cookiecutter.schedule_cron }}'
+
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      edition_number:
+        description: 'Edition number (e.g., 001)'
+        required: false
+        default: '001'
+      dry_run:
+        description: 'Dry run — roda tudo mas NÃO envia email (true/false)'
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Calculate edition number
+        id: edition
+        run: |
+          if [ -n "${{ '{{' }} github.event.inputs.edition_number {{ '}}' }}" ]; then
+            echo "number=${{ '{{' }} github.event.inputs.edition_number {{ '}}' }}" >> $GITHUB_OUTPUT
+          else
+            # Days since launch ({{ cookiecutter.launch_date }} = edition #001)
+            DAYS=$(( ($(date +%s) - $(date -d "{{ cookiecutter.launch_date }}" +%s)) / 86400 ))
+            printf "number=%03d\n" $DAYS >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run pipeline
+        env:
+{% if cookiecutter.llm_provider == 'gemini' %}
+          GEMINI_API_KEY: ${{ '{{' }} secrets.GEMINI_API_KEY {{ '}}' }}
+{% else %}
+          OPENAI_API_KEY: ${{ '{{' }} secrets.OPENAI_API_KEY {{ '}}' }}
+{% endif %}
+{% if cookiecutter.delivery_platform == 'buttondown' %}
+          BUTTONDOWN_API_KEY: ${{ '{{' }} secrets.BUTTONDOWN_API_KEY {{ '}}' }}
+{% endif %}
+          EDITION_NUMBER: ${{ '{{' }} steps.edition.outputs.number {{ '}}' }}
+          FEEDBACK_BASE_URL: ${{ '{{' }} secrets.FEEDBACK_BASE_URL {{ '}}' }}
+          DRY_RUN: ${{ '{{' }} github.event.inputs.dry_run || 'false' {{ '}}' }}
+          SOCIAL_ENABLED: '{{ "true" if cookiecutter.social_linkedin == "yes" else "false" }}'
+        run: python pipeline.py
+
+      - name: Upload output artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: edition-${{ '{{' }} steps.edition.outputs.number {{ '}}' }}
+          path: output/
+          retention-days: 30
+
+      - name: Upload pipeline logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-logs-${{ '{{' }} steps.edition.outputs.number {{ '}}' }}
+          path: "*.log"
+          retention-days: 7
