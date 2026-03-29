@@ -25,6 +25,7 @@
   "delivery_platform": ["buttondown", "none"],
   "schedule_frequency": ["daily", "weekly-monday", "weekly-friday"],
   "schedule_time_utc": "10:00",
+  "schedule_cron": "0 10 * * *",
   "launch_date": "2026-01-01",
 
   "_section_llm": "──── LLM ────",
